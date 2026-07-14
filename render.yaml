@@ -1,0 +1,42 @@
+# Render Blueprint — Backend FastAPI (plan gratuito)
+# La DB va en Neon y el frontend en Vercel (ver DEPLOY.md).
+# Al importar el repo en Render, este archivo configura el Web Service.
+services:
+  - type: web
+    name: fichamedica-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      # --- Base de datos (Neon) ---
+      # Formato: postgresql+asyncpg://user:pass@ep-xxx.neon.tech/dbname
+      # (agregar +asyncpg y quitar ?sslmode=...&channel_binding=...)
+      - key: DATABASE_URL
+        sync: false
+      # --- Seguridad ---
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "30"
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: "7"
+      # --- SuperAdmin (seed inicial) ---
+      - key: SUPERADMIN_EMAIL
+        sync: false
+      - key: SUPERADMIN_PASSWORD
+        sync: false
+      # --- URLs (completar con la URL real de Vercel) ---
+      - key: BACKEND_CORS_ORIGINS
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      # --- Email (Resend) — opcional; sin key los emails van a los logs ---
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: FichaMédica Pet <noreply@fichamedica.app>

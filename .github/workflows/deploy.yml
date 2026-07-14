@@ -1,0 +1,192 @@
+name: CI/CD → Deploy to AWS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_BACKEND: ghcr.io/${{ github.repository_owner }}/fichamedica-backend
+  IMAGE_FRONTEND: ghcr.io/${{ github.repository_owner }}/fichamedica-frontend
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1: Tests
+  # ─────────────────────────────────────────────
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: vetadmin
+          POSTGRES_PASSWORD: vetpassword123
+          POSTGRES_DB: fichamedica_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend deps
+        working-directory: backend
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql+asyncpg://vetadmin:vetpassword123@localhost:5432/fichamedica_test
+          TEST_DATABASE_URL: postgresql+asyncpg://vetadmin:vetpassword123@localhost:5432/fichamedica_test
+          SECRET_KEY: ci-test-secret-key-not-for-production
+        run: pytest -v --tb=short
+
+  # ─────────────────────────────────────────────
+  # JOB 2: Build & Push imágenes (solo en push a main)
+  # ─────────────────────────────────────────────
+  build:
+    name: Build & Push
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      sha: ${{ steps.meta.outputs.sha }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        run: echo "sha=${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & push backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile.prod
+          push: true
+          tags: |
+            ${{ env.IMAGE_BACKEND }}:latest
+            ${{ env.IMAGE_BACKEND }}:${{ steps.meta.outputs.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile.prod
+          push: true
+          tags: |
+            ${{ env.IMAGE_FRONTEND }}:latest
+            ${{ env.IMAGE_FRONTEND }}:${{ steps.meta.outputs.sha }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ─────────────────────────────────────────────
+  # JOB 3: Deploy al EC2
+  # ─────────────────────────────────────────────
+  deploy:
+    name: Deploy → EC2
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    environment:
+      name: production
+      url: https://${{ secrets.DOMAIN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy archivos de configuración al EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.prod.yml,nginx/nginx.conf"
+          target: "~/fichamedica"
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v1
+        env:
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+          IMAGE_BACKEND: ${{ env.IMAGE_BACKEND }}
+          IMAGE_FRONTEND: ${{ env.IMAGE_FRONTEND }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: GITHUB_REPOSITORY_OWNER,IMAGE_BACKEND,IMAGE_FRONTEND,GITHUB_TOKEN,GITHUB_ACTOR
+          script: |
+            set -e
+            cd ~/fichamedica
+
+            # Login al registry
+            echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+
+            # Escribir .env con los secrets
+            cat > .env << 'ENVEOF'
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            BACKEND_CORS_ORIGINS=https://${{ secrets.DOMAIN }}
+            NEXT_PUBLIC_API_URL=https://${{ secrets.DOMAIN }}/api/v1
+            SUPERADMIN_EMAIL=${{ secrets.SUPERADMIN_EMAIL }}
+            SUPERADMIN_PASSWORD=${{ secrets.SUPERADMIN_PASSWORD }}
+            GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
+            ENVEOF
+
+            # Bajar imágenes nuevas
+            docker pull $IMAGE_BACKEND:latest
+            docker pull $IMAGE_FRONTEND:latest
+
+            # Levantar servicios
+            docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+
+            # Migraciones de base de datos
+            echo "Ejecutando migraciones..."
+            docker-compose -f docker-compose.prod.yml exec -T backend alembic upgrade head
+
+            # Verificar que el backend responde
+            echo "Verificando health check..."
+            sleep 8
+            curl -f http://localhost:8000/health || (echo "Health check falló" && exit 1)
+
+            # Limpiar imágenes antiguas
+            docker image prune -f
+
+            echo "✅ Deploy completado exitosamente"

@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:skills.sh)",
+      "Bash(docker-compose up:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(docker-compose exec:*)",
+      "Bash(docker-compose logs:*)",
+      "Bash(curl -s http://localhost:8000/health)",
+      "Bash(curl -s http://localhost:8000/api/v1/subscriptions/plans/)",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s -X POST http://localhost:8000/api/v1/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"admin@fichamedica.com\",\"password\":\"admin123456\"}')",
+      "Bash(curl -s -X POST http://localhost:8000/api/v1/auth/register -H 'Content-Type: application/json' -d '{\"tenant_name\":\"Veterinaria Happy Pet\",\"tenant_slug\":\"happy-pet\",\"email\":\"vet@happypet.cl\",\"password\":\"test123456\",\"first_name\":\"María\",\"last_name\":\"González\"}')",
+      "Bash(curl:*)",
+      "Bash(docker-compose restart:*)",
+      "Bash(python3 -c \"import json,sys; paths=json.load\\(sys.stdin\\)['paths']; print\\('\\\\n'.join\\(k for k in paths if 'change-password' in k or 'portal' in k\\)\\)\")",
+      "Bash(ls /Users/enso/code/lab/fichaMedicaPet/backend/Dockerfile*)",
+      "Bash(ls /Users/enso/code/lab/fichaMedicaPet/frontend/Dockerfile*)",
+      "Bash(python3 -c ':*)",
+      "Bash(docker compose:*)"
+    ]
+  }
+}
