@@ -51,7 +51,7 @@ async def compute_available_slots(
         return []
     duration = service.duration_minutes
 
-    # 2. Horario recurrente del vet para ese día de la semana
+    # 2. Horario recurrente del vet para ese día de la semana (puede haber varios bloques)
     day_of_week = target_date.weekday()  # 0=Lunes, 6=Domingo
     sched_result = await db.execute(
         select(VeterinarianSchedule).where(
@@ -61,8 +61,8 @@ async def compute_available_slots(
             VeterinarianSchedule.is_active == True,
         )
     )
-    schedule = sched_result.scalar_one_or_none()
-    if not schedule:
+    schedules = sched_result.scalars().all()
+    if not schedules:
         return []  # No trabaja ese día
 
     # 3. Excepciones para esa fecha
@@ -80,14 +80,15 @@ async def compute_available_slots(
         if exc.start_time is None:
             return []
 
-    # 4. Generar todos los slots del día
-    day_start = _time_to_minutes(schedule.start_time)
-    day_end = _time_to_minutes(schedule.end_time)
+    # 4. Generar todos los slots del día (iterando sobre todos los bloques del horario)
     all_slots: list[tuple[int, int]] = []
-    cursor = day_start
-    while cursor + duration <= day_end:
-        all_slots.append((cursor, cursor + duration))
-        cursor += duration
+    for schedule in schedules:
+        block_start = _time_to_minutes(schedule.start_time)
+        block_end = _time_to_minutes(schedule.end_time)
+        cursor = block_start
+        while cursor + duration <= block_end:
+            all_slots.append((cursor, cursor + duration))
+            cursor += duration
 
     if not all_slots:
         return []
