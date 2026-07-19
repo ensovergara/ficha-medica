@@ -43,7 +43,9 @@ export default function PlanFeaturesModal({ open, plan, onClose, onSuccess }: Pl
       ]);
 
       setFeatures(featuresRes.data);
-      const assigned = new Set(planFeaturesRes.data.features.map((f: Feature) => f.key));
+      const assigned = new Set<string>(
+        planFeaturesRes.data.features.map((f: Feature) => f.key)
+      );
       setAssignedFeatures(assigned);
     } catch (err: any) {
       setError(err?.response?.data?.detail || "Error al cargar features");
