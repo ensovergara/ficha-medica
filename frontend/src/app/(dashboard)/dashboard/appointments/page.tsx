@@ -268,7 +268,7 @@ export default function AppointmentsPage() {
                       <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">{getVetName(a.veterinarian_id)}</td>
                       <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">
                         <div className="flex items-center gap-1.5">
-                          {getServiceName(a.service_id) || <span className="text-gray-300 dark:text-slate-600">—</span>}
+                          {getServiceName(a.service_id ?? undefined) || <span className="text-gray-300 dark:text-slate-600">—</span>}
                           {a.source === "PORTAL" && (
                             <span title="Reservado desde el portal" className="text-blue-500">
                               <Globe className="h-3.5 w-3.5" />
