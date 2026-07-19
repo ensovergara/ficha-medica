@@ -136,15 +136,15 @@ async def get_plan_features(
         raise HTTPException(status_code=404, detail="Plan no encontrado")
 
     result = await db.execute(
-        select(FeaturePlan)
-        .join(FeaturePlan.feature)
+        select(Feature)
+        .join(FeaturePlan)
         .where(FeaturePlan.plan_id == plan_id)
     )
-    feature_plans = result.scalars().all()
+    features = result.scalars().all()
 
     return PlanFeaturesResponse(
         plan_id=plan_id,
-        features=[fp.feature for fp in feature_plans],
+        features=features,
     )
 
 
@@ -176,15 +176,16 @@ async def assign_feature_to_plan(
 
     feature_plan = FeaturePlan(plan_id=plan_id, feature_id=feature.id)
     db.add(feature_plan)
+    await db.flush()
 
     assignment = FeatureAssignment(
         plan_id=plan_id, feature_id=feature.id, assigned_by=current_user.id
     )
     db.add(assignment)
-
     await db.flush()
-    await db.refresh(feature_plan)
-    return FeaturePlanResponse.model_validate(feature_plan)
+    await db.commit()
+
+    return {"id": str(feature_plan.id), "plan_id": str(plan_id), "feature_id": str(feature.id)}
 
 
 @router.delete("/plans/{plan_id}/features/{feature_key}", status_code=status.HTTP_204_NO_CONTENT)

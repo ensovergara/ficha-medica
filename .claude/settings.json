@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit -m 'fix: correct TypeScript Set<string> type annotation in PlanFeaturesModal *)",
+      "Bash(psql \"postgresql://neondb_owner:npg_QUDbgWXwAF03@ep-royal-art-atytrcd4.c-9.us-east-1.aws.neon.tech/neondb\")",
+      "Bash(python3)",
+      "Bash(git commit -m 'fix: resolve SQLAlchemy async greenlet error in feature endpoints *)"
+    ]
+  }
+}
