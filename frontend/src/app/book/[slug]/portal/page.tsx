@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { bookingApi, savePortalToken, getPortalToken, clearPortalToken } from "@/lib/public-api";
 import { PublicAppointment } from "@/types";
@@ -16,7 +16,7 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
   cancelled:   { label: "Cancelada",   className: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" },
 };
 
-export default function ClientPortalPage() {
+function ClientPortalContent() {
   const { slug } = useParams<{ slug: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -287,6 +287,10 @@ export default function ClientPortalPage() {
       </main>
     </div>
   );
+}
+
+export default function ClientPortalPage() {
+  return <Suspense fallback={<div className="flex min-h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" /></div>}><ClientPortalContent /></Suspense>;
 }
 
 // ─── AppointmentCard ──────────────────────────────────────────────────────────

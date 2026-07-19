@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 
@@ -15,7 +15,7 @@ interface Pet {
   vaccinations: { vaccine_name: string; date: string; next_dose: string | null }[];
 }
 
-export default function PortalPage() {
+function PortalContent() {
   const params = useSearchParams();
   const code = params.get("code");
   const [data, setData] = useState<{ client: any; pets: Pet[] } | null>(null);
@@ -118,5 +118,17 @@ export default function PortalPage() {
         <p className="text-center text-xs text-gray-300 dark:text-slate-600 mt-10">FichaMédica SaaS Veterinario</p>
       </div>
     </div>
+  );
+}
+
+export default function PortalPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-slate-900">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" />
+      </div>
+    }>
+      <PortalContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { bookingApi } from "@/lib/public-api";
 import { Service, PublicVet, AvailableSlot } from "@/types";
@@ -36,7 +36,7 @@ const SPECIES = ["Perro", "Gato", "Ave", "Conejo", "Reptil", "Otro"];
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function BookingWizardPage() {
+function BookingWizardContent() {
   const { slug } = useParams<{ slug: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -564,6 +564,10 @@ function Spinner() {
       <div className="w-6 h-6 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );
+}
+
+export default function BookingWizardPage() {
+  return <Suspense fallback={<div className="flex min-h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" /></div>}><BookingWizardContent /></Suspense>;
 }
 
 function formatDate(dateStr: string): string {

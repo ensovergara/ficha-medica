@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { bookingApi } from "@/lib/public-api";
 import { Service, PublicVet, AvailableSlot } from "@/types";
@@ -28,7 +28,7 @@ const SPECIES = ["Perro", "Gato", "Ave", "Conejo", "Reptil", "Otro"];
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function WidgetPage() {
+function WidgetContent() {
   const { slug } = useParams<{ slug: string }>();
   const searchParams = useSearchParams();
 
@@ -551,6 +551,10 @@ function Spinner({ color }: { color: string }) {
       />
     </div>
   );
+}
+
+export default function WidgetPage() {
+  return <Suspense fallback={<div className="flex min-h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" /></div>}><WidgetContent /></Suspense>;
 }
 
 function formatDate(dateStr: string): string {
