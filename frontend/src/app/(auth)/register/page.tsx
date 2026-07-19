@@ -47,11 +47,11 @@ export default function RegisterPage() {
   const inputClass = "mt-1 block w-full rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2 text-gray-900 dark:text-slate-100 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 placeholder-gray-400 dark:placeholder-slate-500";
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 dark:from-slate-900 dark:to-slate-800 py-12">
-      <div className="w-full max-w-md rounded-xl bg-white dark:bg-slate-800 p-8 shadow-lg dark:shadow-slate-900/50 border border-transparent dark:border-slate-700">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-primary-700 dark:text-primary-400">Registra tu Clínica</h1>
-          <p className="mt-2 text-gray-500 dark:text-slate-400">14 días de prueba gratis</p>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 dark:from-slate-900 dark:to-slate-800 p-4 py-8">
+      <div className="w-full max-w-md rounded-xl bg-white dark:bg-slate-800 p-6 md:p-8 shadow-lg dark:shadow-slate-900/50 border border-transparent dark:border-slate-700">
+        <div className="mb-6 md:mb-8 text-center">
+          <h1 className="text-2xl md:text-3xl font-bold text-primary-700 dark:text-primary-400">Registra tu Clínica</h1>
+          <p className="mt-2 text-sm md:text-base text-gray-500 dark:text-slate-400">14 días de prueba gratis</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

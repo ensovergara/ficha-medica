@@ -57,13 +57,13 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0 mb-6 md:mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-slate-100">
             Hola, {user?.first_name} 👋
-            {superadmin && <span className="ml-2 rounded-full bg-primary-100 dark:bg-primary-900/30 px-2 py-0.5 text-sm font-medium text-primary-700 dark:text-primary-400">SuperAdmin</span>}
+            {superadmin && <span className="mt-2 md:ml-2 md:mt-0 inline-block rounded-full bg-primary-100 dark:bg-primary-900/30 px-2 py-0.5 text-xs md:text-sm font-medium text-primary-700 dark:text-primary-400">SuperAdmin</span>}
           </h1>
-          <p className="mt-1 text-gray-500 dark:text-slate-400">
+          <p className="mt-1 text-sm md:text-base text-gray-500 dark:text-slate-400">
             {superadmin ? "Vista global de toda la plataforma" : "Resumen de tu clínica"}
           </p>
         </div>
@@ -71,40 +71,40 @@ export default function DashboardPage() {
 
       {/* Stats cards */}
       {loading ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-28 rounded-xl border bg-gray-50 dark:bg-slate-800 dark:border-slate-700 animate-pulse" />
+            <div key={i} className="h-24 sm:h-28 rounded-xl border bg-gray-50 dark:bg-slate-800 dark:border-slate-700 animate-pulse" />
           ))}
         </div>
       ) : (
-        <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${cards.length >= 4 ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
+        <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 ${cards.length >= 4 ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
           {cards.map((card) => (
-            <Link key={card.label} href={card.href} className={`rounded-xl border p-5 ${card.color} hover:shadow-sm transition-shadow`}>
-              <div className="flex items-center justify-between">
-                <span className="text-2xl">{card.icon}</span>
-                <span className={`text-2xl font-bold ${card.text}`}>{card.value}</span>
+            <Link key={card.label} href={card.href} className={`rounded-xl border p-4 md:p-5 ${card.color} hover:shadow-sm transition-shadow`}>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xl md:text-2xl">{card.icon}</span>
+                <span className={`text-xl md:text-2xl font-bold ${card.text}`}>{card.value}</span>
               </div>
-              <p className={`mt-2 text-sm font-medium ${card.text}`}>{card.label}</p>
+              <p className={`mt-2 text-xs md:text-sm font-medium ${card.text}`}>{card.label}</p>
               <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{card.sub}</p>
             </Link>
           ))}
         </div>
       )}
 
-      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="mt-6 md:mt-8 grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
         {/* Quick actions */}
         {quickActions.length > 0 && (
-          <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
-            <h2 className="text-base font-semibold text-gray-900 dark:text-slate-100 mb-4">Acciones rápidas</h2>
-            <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 md:p-6">
+            <h2 className="text-sm md:text-base font-semibold text-gray-900 dark:text-slate-100 mb-4">Acciones rápidas</h2>
+            <div className="grid grid-cols-2 gap-2 md:gap-3">
               {quickActions.map((action) => (
                 <Link
                   key={action.label}
                   href={action.href}
-                  className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-slate-700 p-3 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
+                  className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 rounded-lg border border-gray-200 dark:border-slate-700 p-3 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
                 >
-                  <span className="text-xl">{action.icon}</span>
-                  <span className="text-sm font-medium text-gray-700 dark:text-slate-300">{action.label}</span>
+                  <span className="text-lg md:text-xl">{action.icon}</span>
+                  <span className="text-xs md:text-sm font-medium text-gray-700 dark:text-slate-300 line-clamp-1">{action.label}</span>
                 </Link>
               ))}
             </div>
@@ -113,30 +113,30 @@ export default function DashboardPage() {
 
         {/* SuperAdmin panel / Subscription info */}
         {superadmin ? (
-          <div className="rounded-xl border border-primary-100 dark:border-primary-800 bg-primary-50 dark:bg-primary-900/20 p-6">
-            <h2 className="text-base font-semibold text-primary-800 dark:text-primary-300 mb-4">Panel SuperAdmin</h2>
+          <div className="rounded-xl border border-primary-100 dark:border-primary-800 bg-primary-50 dark:bg-primary-900/20 p-4 md:p-6">
+            <h2 className="text-sm md:text-base font-semibold text-primary-800 dark:text-primary-300 mb-4">Panel SuperAdmin</h2>
             <div className="space-y-2">
               {superadminLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="flex items-center justify-between rounded-lg border border-primary-200 dark:border-primary-700 bg-white dark:bg-slate-800 px-4 py-3 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors"
+                  className="flex items-center justify-between rounded-lg border border-primary-200 dark:border-primary-700 bg-white dark:bg-slate-800 px-3 md:px-4 py-2.5 md:py-3 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors gap-2"
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">{link.icon}</span>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{link.label}</p>
-                      <p className="text-xs text-gray-500 dark:text-slate-400">{link.desc}</p>
+                  <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                    <span className="text-lg md:text-xl flex-shrink-0">{link.icon}</span>
+                    <div className="min-w-0">
+                      <p className="text-xs md:text-sm font-medium text-gray-900 dark:text-slate-100 truncate">{link.label}</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400 truncate">{link.desc}</p>
                     </div>
                   </div>
-                  <span className="text-gray-400 dark:text-slate-500 text-sm">&rarr;</span>
+                  <span className="text-gray-400 dark:text-slate-500 text-xs md:text-sm flex-shrink-0">&rarr;</span>
                 </Link>
               ))}
             </div>
           </div>
         ) : (
-          <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
-            <h2 className="text-base font-semibold text-gray-900 dark:text-slate-100 mb-4">Tu suscripción</h2>
+          <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 md:p-6">
+            <h2 className="text-sm md:text-base font-semibold text-gray-900 dark:text-slate-100 mb-4">Tu suscripción</h2>
             <SubscriptionInfo patientsTotal={stats?.patients_total ?? 0} />
           </div>
         )}
@@ -171,19 +171,19 @@ function SubscriptionInfo({ patientsTotal }: { patientsTotal: number }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <p className="font-semibold text-gray-900 dark:text-slate-100">{plan.name}</p>
-          <p className={`text-sm font-medium ${statusColors[sub.status] || "text-gray-600 dark:text-slate-400"}`}>{statusLabels[sub.status] || sub.status}</p>
+          <p className="text-sm md:text-base font-semibold text-gray-900 dark:text-slate-100">{plan.name}</p>
+          <p className={`text-xs md:text-sm font-medium ${statusColors[sub.status] || "text-gray-600 dark:text-slate-400"}`}>{statusLabels[sub.status] || sub.status}</p>
         </div>
         {sub.current_period_end && (
-          <p className="text-sm text-gray-500 dark:text-slate-400">Vence: {new Date(sub.current_period_end).toLocaleDateString("es-CL")}</p>
+          <p className="text-xs md:text-sm text-gray-500 dark:text-slate-400 flex-shrink-0">Vence: {new Date(sub.current_period_end).toLocaleDateString("es-CL")}</p>
         )}
       </div>
 
       {plan.max_patients && (
         <div>
-          <div className="flex justify-between text-sm text-gray-600 dark:text-slate-400 mb-1">
+          <div className="flex justify-between text-xs md:text-sm text-gray-600 dark:text-slate-400 mb-1">
             <span>Pacientes</span>
             <span>{patientsTotal} / {plan.max_patients}</span>
           </div>
@@ -196,7 +196,7 @@ function SubscriptionInfo({ patientsTotal }: { patientsTotal: number }) {
         </div>
       )}
 
-      <Link href="/dashboard/settings" className="block text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium">
+      <Link href="/dashboard/settings" className="block text-xs md:text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium">
         Ver planes disponibles &rarr;
       </Link>
     </div>

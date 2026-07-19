@@ -60,7 +60,7 @@ export default function Sidebar() {
   );
 
   return (
-    <aside className="flex h-screen w-64 flex-col bg-white border-r border-gray-200 sticky top-0 dark:bg-slate-800 dark:border-slate-700">
+    <aside className="hidden md:flex h-screen w-64 flex-col bg-white border-r border-gray-200 sticky top-0 dark:bg-slate-800 dark:border-slate-700">
       <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-6 dark:border-slate-700">
         <span className="text-2xl">🐾</span>
         <div>

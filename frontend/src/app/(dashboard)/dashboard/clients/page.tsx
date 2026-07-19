@@ -128,59 +128,92 @@ export default function ClientsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Clientes</h1>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-slate-100">Clientes</h1>
         <Button onClick={() => { resetForm(); setShowModal(true); }}>Nuevo Cliente</Button>
       </div>
 
       <div className="mt-6">
-        <Input placeholder="Buscar por nombre o RUT..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-md" />
+        <Input placeholder="Buscar por nombre o RUT..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full" />
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-          <thead className="bg-gray-50 dark:bg-slate-700/50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-slate-400">Nombre</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-slate-400">RUT</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-slate-400">Teléfono</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-slate-400">Email</th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase text-gray-500 dark:text-slate-400">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
-            {loading ? (
-              <tr><td colSpan={5} className="px-6 py-4 text-center text-gray-500 dark:text-slate-400">Cargando...</td></tr>
-            ) : clients.length === 0 ? (
-              <tr><td colSpan={5} className="px-6 py-4 text-center text-gray-500 dark:text-slate-400">No hay clientes</td></tr>
-            ) : (
-              clients.map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-slate-100">{c.first_name} {c.last_name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">{c.rut || "-"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">{c.phone || "-"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">{c.email || "-"}</td>
-                  <td className="px-6 py-4 text-right space-x-2">
-                    <Button variant="ghost" size="sm" onClick={() => generatePortal(c.id)} title="Generar enlace portal">🔗</Button>
-                    <Button variant="ghost" size="sm" onClick={() => openEdit(c)}>Editar</Button>
-                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" onClick={() => handleDelete(c.id)}>Eliminar</Button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="mt-6">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+            <thead className="bg-gray-50 dark:bg-slate-700/50">
+              <tr>
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-slate-400">Nombre</th>
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-slate-400">RUT</th>
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-slate-400">Teléfono</th>
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-slate-400">Email</th>
+                <th className="px-4 lg:px-6 py-3 text-right text-xs font-medium uppercase text-gray-500 dark:text-slate-400">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
+              {loading ? (
+                <tr><td colSpan={5} className="px-4 lg:px-6 py-4 text-center text-sm text-gray-500 dark:text-slate-400">Cargando...</td></tr>
+              ) : clients.length === 0 ? (
+                <tr><td colSpan={5} className="px-4 lg:px-6 py-4 text-center text-sm text-gray-500 dark:text-slate-400">No hay clientes</td></tr>
+              ) : (
+                clients.map((c) => (
+                  <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30">
+                    <td className="px-4 lg:px-6 py-4 text-xs md:text-sm font-medium text-gray-900 dark:text-slate-100">{c.first_name} {c.last_name}</td>
+                    <td className="px-4 lg:px-6 py-4 text-xs md:text-sm text-gray-500 dark:text-slate-400">{c.rut || "-"}</td>
+                    <td className="px-4 lg:px-6 py-4 text-xs md:text-sm text-gray-500 dark:text-slate-400">{c.phone || "-"}</td>
+                    <td className="px-4 lg:px-6 py-4 text-xs md:text-sm text-gray-500 dark:text-slate-400">{c.email || "-"}</td>
+                    <td className="px-4 lg:px-6 py-4 text-right space-x-1 md:space-x-2">
+                      <Button variant="ghost" size="sm" onClick={() => generatePortal(c.id)} title="Generar enlace portal">🔗</Button>
+                      <Button variant="ghost" size="sm" onClick={() => openEdit(c)}>Editar</Button>
+                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" onClick={() => handleDelete(c.id)}>Eliminar</Button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile Cards */}
+        <div className="md:hidden space-y-3">
+          {loading ? (
+            <div className="text-center py-4 text-sm text-gray-500 dark:text-slate-400">Cargando...</div>
+          ) : clients.length === 0 ? (
+            <div className="text-center py-4 text-sm text-gray-500 dark:text-slate-400">No hay clientes</div>
+          ) : (
+            clients.map((c) => (
+              <div key={c.id} className="rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{c.first_name} {c.last_name}</p>
+                    {c.email && <p className="text-xs text-gray-500 dark:text-slate-400">{c.email}</p>}
+                  </div>
+                </div>
+                <div className="space-y-1 text-xs text-gray-600 dark:text-slate-400 mb-3">
+                  {c.rut && <div><span className="font-medium">RUT:</span> {c.rut}</div>}
+                  {c.phone && <div><span className="font-medium">Tel:</span> {c.phone}</div>}
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" className="flex-1" onClick={() => generatePortal(c.id)} title="Generar enlace portal">🔗 Portal</Button>
+                  <Button variant="ghost" size="sm" className="flex-1" onClick={() => openEdit(c)}>Editar</Button>
+                  <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" onClick={() => handleDelete(c.id)}>Eliminar</Button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
         <Pagination skip={skip} limit={LIMIT} total={total} onPageChange={handlePageChange} />
       </div>
 
       <Modal open={showModal} onClose={() => setShowModal(false)} title={editingId ? "Editar Cliente" : "Nuevo Cliente"}>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input label="Nombre" required value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} />
             <Input label="Apellido" required value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
           </div>
           <Input label="RUT / DNI" value={form.rut} onChange={(e) => setForm({ ...form, rut: e.target.value })} />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input label="Teléfono" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
             <Input label="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           </div>

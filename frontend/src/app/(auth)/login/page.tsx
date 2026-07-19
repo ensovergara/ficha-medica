@@ -28,11 +28,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 dark:from-slate-900 dark:to-slate-800">
-      <div className="w-full max-w-md rounded-xl bg-white dark:bg-slate-800 p-8 shadow-lg dark:shadow-slate-900/50 border border-transparent dark:border-slate-700">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-primary-700 dark:text-primary-400">Ficha Médica Pet</h1>
-          <p className="mt-2 text-gray-500 dark:text-slate-400">Ingresa a tu cuenta</p>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 dark:from-slate-900 dark:to-slate-800 p-4">
+      <div className="w-full max-w-md rounded-xl bg-white dark:bg-slate-800 p-6 md:p-8 shadow-lg dark:shadow-slate-900/50 border border-transparent dark:border-slate-700">
+        <div className="mb-6 md:mb-8 text-center">
+          <h1 className="text-2xl md:text-3xl font-bold text-primary-700 dark:text-primary-400">Ficha Médica Pet</h1>
+          <p className="mt-2 text-sm md:text-base text-gray-500 dark:text-slate-400">Ingresa a tu cuenta</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
