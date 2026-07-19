@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.features import has_feature
 from app.database import get_db
 from app.dependencies import get_tenant_id, require_permission_dep, tenant_filter
 from app.models.inventory import MovementType, Product, StockMovement
@@ -46,6 +47,12 @@ async def create_product(
     current_user: User = Depends(require_permission_dep("inventory:write")),
     tenant_id: uuid.UUID = Depends(get_tenant_id),
 ):
+    if not await has_feature(db, tenant_id, "inventory"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Feature 'Gestión de Inventario' no disponible en tu plan",
+        )
+
     product = Product(tenant_id=tenant_id, **data.model_dump())
     db.add(product)
     await db.flush()
@@ -61,6 +68,12 @@ async def update_product(
     current_user: User = Depends(require_permission_dep("inventory:write")),
     tenant_id: uuid.UUID = Depends(get_tenant_id),
 ):
+    if not await has_feature(db, tenant_id, "inventory"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Feature 'Gestión de Inventario' no disponible en tu plan",
+        )
+
     result = await db.execute(
         select(Product).where(Product.id == product_id, *tenant_filter(Product, tenant_id))
     )
@@ -82,6 +95,12 @@ async def create_stock_movement(
     current_user: User = Depends(require_permission_dep("inventory:write")),
     tenant_id: uuid.UUID = Depends(get_tenant_id),
 ):
+    if not await has_feature(db, tenant_id, "inventory"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Feature 'Gestión de Inventario' no disponible en tu plan",
+        )
+
     result = await db.execute(
         select(Product).where(Product.id == data.product_id, Product.tenant_id == tenant_id)
     )

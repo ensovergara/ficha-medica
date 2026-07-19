@@ -1,10 +1,11 @@
 import uuid
 from datetime import date, datetime, timezone
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.features import has_feature
 from app.database import get_db
 from app.dependencies import get_tenant_id, require_permission_dep, tenant_filter
 from app.models.appointment import Appointment, AppointmentStatus
@@ -26,6 +27,12 @@ async def get_summary_report(
     current_user: User = Depends(require_permission_dep("reports:read")),
     tenant_id: uuid.UUID = Depends(get_tenant_id),
 ):
+    if not await has_feature(db, tenant_id, "analytics"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Feature 'Reportes y Análisis' no disponible en tu plan",
+        )
+
     dt_from = datetime(date_from.year, date_from.month, date_from.day, tzinfo=timezone.utc)
     dt_to = datetime(date_to.year, date_to.month, date_to.day, 23, 59, 59, tzinfo=timezone.utc)
 
@@ -79,6 +86,12 @@ async def patients_by_species(
     current_user: User = Depends(require_permission_dep("reports:read")),
     tenant_id: uuid.UUID = Depends(get_tenant_id),
 ):
+    if not await has_feature(db, tenant_id, "analytics"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Feature 'Reportes y Análisis' no disponible en tu plan",
+        )
+
     result = (await db.execute(
         select(Patient.species, func.count(Patient.id))
         .where(Patient.tenant_id == tenant_id, Patient.is_active == True)

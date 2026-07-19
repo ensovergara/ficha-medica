@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
+import FeatureGate from "@/components/FeatureGate";
 
 interface SummaryReport {
   period: { from: string; to: string };
@@ -45,8 +46,9 @@ export default function ReportsPage() {
   const totalSpecies = species.reduce((s, d) => s + d.count, 0);
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Reportes</h1>
+    <FeatureGate featureKey="analytics" upgradeMessage="Actualiza tu plan para acceder a reportes y análisis">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Reportes</h1>
 
       <div className="mt-6 flex items-end gap-4">
         <div>
@@ -132,6 +134,7 @@ export default function ReportsPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </FeatureGate>
   );
 }

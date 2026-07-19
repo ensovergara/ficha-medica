@@ -6,6 +6,7 @@ import type { Plan } from "@/types";
 import Modal from "@/components/ui/modal";
 import Input from "@/components/ui/input";
 import Button from "@/components/ui/button";
+import PlanFeaturesModal from "@/components/superadmin/PlanFeaturesModal";
 
 const emptyForm = { name: "", max_users: "1", max_patients: "", price_monthly: "0", price_yearly: "0" };
 
@@ -13,6 +14,8 @@ export default function PlansPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showFeaturesModal, setShowFeaturesModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -30,6 +33,11 @@ export default function PlansPage() {
     setForm(emptyForm);
     setError("");
     setShowModal(true);
+  };
+
+  const openFeaturesModal = (plan: Plan) => {
+    setSelectedPlan(plan);
+    setShowFeaturesModal(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,7 +76,16 @@ export default function PlansPage() {
         ) : (
           plans.map((plan) => (
             <div key={plan.id} className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 flex flex-col">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100">{plan.name}</h3>
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100">{plan.name}</h3>
+                <button
+                  onClick={() => openFeaturesModal(plan)}
+                  className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
+                  title="Editar features"
+                >
+                  ⚙️
+                </button>
+              </div>
               <p className="mt-2 text-3xl font-bold text-primary-600 dark:text-primary-400">
                 ${plan.price_monthly.toLocaleString()}
                 <span className="text-sm font-normal text-gray-500 dark:text-slate-400">/mes</span>
@@ -109,6 +126,16 @@ export default function PlansPage() {
           </div>
         </form>
       </Modal>
+
+      <PlanFeaturesModal
+        open={showFeaturesModal}
+        plan={selectedPlan}
+        onClose={() => setShowFeaturesModal(false)}
+        onSuccess={() => {
+          setShowFeaturesModal(false);
+          fetchPlans();
+        }}
+      />
     </div>
   );
 }

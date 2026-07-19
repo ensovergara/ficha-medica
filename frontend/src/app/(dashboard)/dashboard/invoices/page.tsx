@@ -8,6 +8,7 @@ import Input from "@/components/ui/input";
 import Select from "@/components/ui/select";
 import Button from "@/components/ui/button";
 import Badge from "@/components/ui/badge";
+import FeatureGate from "@/components/FeatureGate";
 
 const statusVariant: Record<string, "default" | "info" | "success" | "danger"> = {
   draft: "default", issued: "info", paid: "success", cancelled: "danger",
@@ -93,11 +94,12 @@ export default function InvoicesPage() {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Facturación</h1>
-        <Button onClick={() => setShowModal(true)}>Nueva Factura</Button>
-      </div>
+    <FeatureGate featureKey="billing" upgradeMessage="Actualiza tu plan para acceder a facturación">
+      <div>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Facturación</h1>
+          <Button onClick={() => setShowModal(true)}>Nueva Factura</Button>
+        </div>
 
       <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
@@ -217,5 +219,6 @@ export default function InvoicesPage() {
         )}
       </Modal>
     </div>
+    </FeatureGate>
   );
 }

@@ -9,6 +9,7 @@ import Select from "@/components/ui/select";
 import Button from "@/components/ui/button";
 import Badge from "@/components/ui/badge";
 import Textarea from "@/components/ui/textarea";
+import FeatureGate from "@/components/FeatureGate";
 
 export default function InventoryPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -78,11 +79,12 @@ export default function InventoryPage() {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Inventario</h1>
-        <Button onClick={() => { resetForm(); setShowModal(true); }}>Nuevo Producto</Button>
-      </div>
+    <FeatureGate featureKey="inventory" upgradeMessage="Actualiza tu plan para acceder a gestión de inventario">
+      <div>
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Inventario</h1>
+          <Button onClick={() => { resetForm(); setShowModal(true); }}>Nuevo Producto</Button>
+        </div>
 
       <div className="mt-6">
         <Input placeholder="Buscar producto..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-md" />
@@ -158,6 +160,7 @@ export default function InventoryPage() {
           </div>
         </form>
       </Modal>
-    </div>
+      </div>
+    </FeatureGate>
   );
 }

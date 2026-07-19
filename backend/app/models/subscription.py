@@ -4,7 +4,7 @@ from datetime import datetime
 
 from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, Numeric, String
 from sqlalchemy.dialects.postgresql import JSON, UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
 
@@ -30,6 +30,11 @@ class Plan(Base, TimestampMixin):
     price_yearly: Mapped[float] = mapped_column(Numeric(10, 2), default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
+    feature_plans = relationship("FeaturePlan", back_populates="plan", cascade="all, delete-orphan")
+
+    def has_feature(self, feature_key: str) -> bool:
+        return any(fp.feature.key == feature_key for fp in self.feature_plans)
+
 
 class Subscription(Base, TimestampMixin):
     __tablename__ = "subscriptions"
@@ -52,3 +57,5 @@ class Subscription(Base, TimestampMixin):
     current_period_end: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+
+    plan = relationship("Plan", lazy="selectin")

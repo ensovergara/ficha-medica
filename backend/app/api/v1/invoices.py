@@ -5,8 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.features import has_feature
 from app.database import get_db
-from app.dependencies import get_tenant_id, require_permission_dep, tenant_filter
+from app.dependencies import get_current_user, get_tenant_id, require_permission_dep, tenant_filter
 from app.models.invoice import Invoice, InvoiceItem, InvoiceStatus, Payment
 from app.models.user import User
 from app.schemas.invoice import (
@@ -46,6 +47,12 @@ async def create_invoice(
     current_user: User = Depends(require_permission_dep("invoices:write")),
     tenant_id: uuid.UUID = Depends(get_tenant_id),
 ):
+    if not await has_feature(db, tenant_id, "billing"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Feature 'Facturación' no disponible en tu plan",
+        )
+
     # Generate invoice number
     count_result = await db.execute(
         select(func.count(Invoice.id)).where(*tenant_filter(Invoice, tenant_id))
@@ -133,6 +140,12 @@ async def create_payment(
     current_user: User = Depends(require_permission_dep("invoices:write")),
     tenant_id: uuid.UUID = Depends(get_tenant_id),
 ):
+    if not await has_feature(db, tenant_id, "billing"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Feature 'Facturación' no disponible en tu plan",
+        )
+
     result = await db.execute(
         select(Invoice).where(Invoice.id == data.invoice_id, *tenant_filter(Invoice, tenant_id))
     )

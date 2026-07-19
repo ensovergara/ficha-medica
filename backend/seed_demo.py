@@ -18,6 +18,7 @@ from app.models import Base
 from app.models.appointment import Appointment, AppointmentStatus
 from app.models.client import Client
 from app.models.consultation import Consultation
+from app.models.feature import Feature, FeaturePlan
 from app.models.inventory import MovementType, Product, StockMovement
 from app.models.invoice import Invoice, InvoiceItem, InvoiceStatus, Payment
 from app.models.lab_result import LabResult
@@ -113,6 +114,13 @@ VACCINES = [
     ("Leucemia Felina (FeLV)", 365),
 ]
 
+FEATURES_DATA = [
+    ("billing", "Facturación", "Crear y gestionar facturas de servicios veterinarios"),
+    ("analytics", "Reportes y Análisis", "Acceso a reportes, dashboards y análisis de datos"),
+    ("telemedicine", "Telemedicina", "Consultas remotas y videollamadas con clientes"),
+    ("inventory", "Gestión de Inventario", "Control de stock, movimientos y gestión de productos"),
+]
+
 PRODUCTS_DATA = [
     ("Vacuna Rabia",            "Vacunas",      "VAC-RAB-001", "dosis",   50, 5,  4500.0),
     ("Vacuna DHPPi",            "Vacunas",      "VAC-DHPPi",   "dosis",   40, 5,  8500.0),
@@ -160,6 +168,19 @@ async def main():
 
         print("🏥  Creando Clínica Demo...")
 
+        # --- Features ---
+        print("⚙️  Inicializando features...")
+        features_map = {}
+        for key, name, description in FEATURES_DATA:
+            existing = (await db.execute(select(Feature).where(Feature.key == key))).scalar_one_or_none()
+            if existing:
+                features_map[key] = existing
+            else:
+                feature = Feature(key=key, name=name, description=description)
+                db.add(feature)
+                features_map[key] = feature
+        await db.flush()
+
         # --- Tenant ---
         tenant = Tenant(name=TENANT_NAME, slug=TENANT_SLUG, email="contacto@sanfrancisco.cl",
                         phone="+56222345678", address="Av. Providencia 2345, Santiago")
@@ -170,6 +191,7 @@ async def main():
         plan = (await db.execute(select(Plan).where(Plan.name.ilike("%profesional%")).limit(1))).scalar_one_or_none()
         if not plan:
             plan = (await db.execute(select(Plan).order_by(Plan.price_monthly.desc()).limit(1))).scalar_one_or_none()
+
         if plan:
             sub = Subscription(
                 tenant_id=tenant.id, plan_id=plan.id, status=SubscriptionStatus.ACTIVE,
@@ -177,6 +199,20 @@ async def main():
                 current_period_end=datetime.now(timezone.utc) + timedelta(days=365),
             )
             db.add(sub)
+            await db.flush()
+
+            # Assign features to Profesional plan (billing + analytics)
+            plan_features = ["billing", "analytics"]
+            for feature_key in plan_features:
+                existing_fp = (await db.execute(
+                    select(FeaturePlan).where(
+                        FeaturePlan.plan_id == plan.id,
+                        FeaturePlan.feature_id == features_map[feature_key].id
+                    )
+                )).scalar_one_or_none()
+                if not existing_fp:
+                    fp = FeaturePlan(plan_id=plan.id, feature_id=features_map[feature_key].id)
+                    db.add(fp)
 
         # --- Users ---
         print("👥  Creando usuarios...")

@@ -17,6 +17,7 @@ from app.models.appointment import Appointment, AppointmentSource, AppointmentSt
 from app.models.inventory import Product, StockMovement
 from app.models.invoice import Invoice, InvoiceItem, Payment
 from app.models.subscription import Plan, Subscription
+from app.models.feature import Feature, FeaturePlan, FeatureAssignment, FeatureKey
 
 __all__ = [
     "AuditLog",
@@ -48,4 +49,8 @@ __all__ = [
     "Payment",
     "Plan",
     "Subscription",
+    "Feature",
+    "FeaturePlan",
+    "FeatureAssignment",
+    "FeatureKey",
 ]
