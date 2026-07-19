@@ -382,9 +382,9 @@ function BookingWizardContent() {
                     {slots.map((slot) => (
                       <button
                         key={slot.start_time}
-                        onClick={() => set("start_time", slot.start_time)}
+                        onClick={() => set("start_time", slot.start_time.slice(0, 5))}
                         className={`py-2 rounded-lg text-sm font-medium border-2 transition-all ${
-                          form.start_time === slot.start_time
+                          form.start_time === slot.start_time.slice(0, 5)
                             ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400"
                             : "border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-500"
                         }`}
